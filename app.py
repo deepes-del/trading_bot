@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from main import start_bot, running_bots
 from auth import register_user, login_user
 
 app = FastAPI()
