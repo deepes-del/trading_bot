@@ -1,31 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trading Bot Control Panel</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; line-height: 1.6; }
-        .box { border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .hidden { display: none; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
-        button:hover { background: #0056b3; }
-        .stop-btn { background: #dc3545; }
-        .stop-btn:hover { background: #a71d2a; }
-        #message { padding: 10px; margin-top: 10px; border-radius: 4px; }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .box {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .stop-btn {
+            background: #dc3545;
+        }
+
+        .stop-btn:hover {
+            background: #a71d2a;
+        }
+
+        #message {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
 
         #logs-container {
             margin-top: 20px;
-            padding: 10px;
-            border-radius: 10px;
             background: #111;
             color: #0f0;
-            font-family: monospace;
+            padding: 10px;
+            border-radius: 10px;
         }
 
         #logs-box {
@@ -33,26 +92,25 @@
             overflow-y: auto;
             border: 1px solid #333;
             padding: 10px;
-            border-radius: 8px;
+            font-family: monospace;
         }
 
         .log-entry {
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeIn 0.4s ease forwards;
+            animation: fadeIn 0.3s ease;
         }
 
-        .log-entry.error { color: #ff4c4c; background: transparent; }
-        .log-entry.info { color: #0f0; }
-
         @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
             to {
                 opacity: 1;
-                transform: translateY(0);
             }
         }
     </style>
 </head>
+
 <body>
 
     <h1>Trading Bot Console</h1>
@@ -76,7 +134,7 @@
     <div id="bot-section" class="box hidden">
         <h2>Bot Controls</h2>
         <p>Logged in as: <span id="display-username"></span></p>
-        
+
         <div class="form-group">
             <label>Bot Mode</label>
             <select id="mode" onchange="toggleCustomFields()">
@@ -97,6 +155,11 @@
         </div>
 
         <div class="form-group">
+            <label>Lots</label>
+            <input type="number" id="lots" value="1" min="1" max="10">
+        </div>
+
+        <div class="form-group">
             <label>Index</label>
             <select id="index">
                 <option value="NIFTY">NIFTY</option>
@@ -107,9 +170,9 @@
         <button onclick="startBot()">Start Bot</button>
         <button class="stop-btn" onclick="stopBot()">Stop Bot</button>
         <button onclick="logout()" style="background:#6c757d; margin-top:10px;">Logout</button>
-        
+
         <div id="logs-container">
-            <h3>📊 Bot Activity</h3>
+            <h3>📊 Bot Logs</h3>
             <div id="logs-box"></div>
         </div>
     </div>
@@ -189,7 +252,8 @@
                 mode: document.getElementById('mode').value,
                 sl: parseInt(document.getElementById('sl').value),
                 target: parseInt(document.getElementById('target').value),
-                index: document.getElementById('index').value
+                index: document.getElementById('index').value,
+                lots: parseInt(document.getElementById("lots").value)
             };
 
             try {
@@ -219,39 +283,31 @@
         }
 
         async function fetchLogs() {
-            const token = localStorage.getItem('session_token');
-            if (!token) return;
+            const sessionToken = localStorage.getItem('session_token');
+            if (!sessionToken) return;
 
             try {
-                const res = await fetch(`/logs?session_token=${token}`);
-                if (!res.ok) return;
+                const res = await fetch(`/logs?session_token=${sessionToken}`);
                 const data = await res.json();
 
+                if (!data.logs) return;
+
                 const logBox = document.getElementById("logs-box");
-                
-                if (data.logs && data.logs.length > 0) {
-                    const newHtml = data.logs.map(log => {
-                        let logClass = "info";
-                        if (log.toLowerCase().includes("error") || log.toLowerCase().includes("failed") || log.toLowerCase().includes("stop")) {
-                            logClass = "error";
-                        }
-                        return `<div class="log-entry ${logClass}">▶ ${log}</div>`;
-                    }).join("");
-                    
-                    if (logBox.innerHTML !== newHtml) {
-                        logBox.innerHTML = newHtml;
-                        logBox.scrollTop = logBox.scrollHeight;
-                    }
-                } else {
-                    logBox.innerHTML = '<div class="log-entry info">▶ Waiting for logs...</div>';
-                }
-            } catch (e) {
-                console.error("Failed to fetch logs", e);
+
+                logBox.innerHTML = data.logs.map(log =>
+                    `<div class="log-entry">▶ ${log}</div>`
+                ).join("");
+
+                logBox.scrollTop = logBox.scrollHeight;
+
+            } catch (err) {
+                console.error("Log fetch error:", err);
             }
         }
 
-        // refresh every 2 seconds
+        // refresh every 2 sec
         setInterval(fetchLogs, 2000);
     </script>
 </body>
+
 </html>
