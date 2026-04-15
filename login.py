@@ -11,12 +11,11 @@ def login():
         if data['status']:
             public_ip = "54.253.200.200"
             
-            smartApi._defaultHeaders.update({
-                "X-ClientLocalIP": "127.0.0.1",
-                "X-ClientPublicIP": public_ip,
-                "X-MACAddress": "00:00:00:00:00:00"
-            })
-            print(f"[DEBUG] Using Public IP: {public_ip}")
+            smartApi.setClientLocalIP("127.0.0.1")
+            smartApi.setClientPublicIP(public_ip)
+            smartApi.setMacAddress("00:00:00:00:00:00")
+            
+            logging.info(f"[DEBUG] Using Public IP: {public_ip}")
             
             logging.info("Broker Login Successful.")
             return smartApi
