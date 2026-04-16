@@ -82,7 +82,7 @@ def place_buy_order(smartApi, symboltoken, symbol, qty):
                 "transactiontype": "BUY",
                 "exchange": "NFO",
                 "ordertype": "MARKET",
-                "producttype": "INTRADAY",
+                "producttype": "CARRYFORWARD",
                 "duration": "DAY",
                 "quantity": str(qty)
             }
@@ -113,7 +113,7 @@ def place_sl_order(smartApi, symboltoken, symbol, qty, trigger_price):
                 "transactiontype": "SELL",
                 "exchange": "NFO",
                 "ordertype": "STOPLOSS_MARKET",
-                "producttype": "INTRADAY",
+                "producttype": "CARRYFORWARD",
                 "duration": "DAY",
                 "price": str(trigger_price), 
                 "triggerprice": str(trigger_price),
@@ -179,7 +179,7 @@ def place_sell_order(smartApi, symboltoken, symbol, qty):
                 "transactiontype": "SELL",
                 "exchange": "NFO",
                 "ordertype": "MARKET",
-                "producttype": "INTRADAY",
+                "producttype": "CARRYFORWARD",
                 "duration": "DAY",
                 "quantity": str(qty)
             }
