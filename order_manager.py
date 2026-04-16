@@ -76,15 +76,18 @@ def place_buy_order(smartApi, symboltoken, symbol, qty):
             import time
             time.sleep(0.3)
             orderparams = {
-                "variety": "NORMAL",
-                "tradingsymbol": str(symbol),
-                "symboltoken": str(symboltoken),
-                "transactiontype": "BUY",
-                "exchange": "NFO",
-                "ordertype": "MARKET",
-                "producttype": "INTRADAY",
-                "duration": "DAY",
-                "quantity": str(qty)
+            "variety": "NORMAL",
+            "tradingsymbol": symbol,
+            "symboltoken": symboltoken,
+            "transactiontype": "BUY",
+            "exchange": "NFO",
+            "ordertype": "MARKET",
+            "producttype": "CARRYFORWARD",
+            "duration": "DAY",
+            "price": "0",
+            "squareoff": "0",
+            "stoploss": "0",
+            "quantity": str(qty)
             }
             order = smartApi.placeOrder(orderparams)
             if order:
@@ -113,11 +116,11 @@ def place_sl_order(smartApi, symboltoken, symbol, qty, trigger_price):
                 "transactiontype": "SELL",
                 "exchange": "NFO",
                 "ordertype": "STOPLOSS_MARKET",
-                "producttype": "INTRADAY",
+                "producttype": "CARRYFORWARD",
                 "duration": "DAY",
                 "price": str(trigger_price), 
                 "triggerprice": str(trigger_price),
-                "quantity": str(qty)
+                "quantity": int(qty)
             }
             order = smartApi.placeOrder(orderparams)
             if order:
@@ -173,15 +176,18 @@ def place_sell_order(smartApi, symboltoken, symbol, qty):
             import time
             time.sleep(0.3)
             orderparams = {
-                "variety": "NORMAL",
-                "tradingsymbol": str(symbol),
-                "symboltoken": str(symboltoken),
-                "transactiontype": "SELL",
-                "exchange": "NFO",
-                "ordertype": "MARKET",
-                "producttype": "INTRADAY",
-                "duration": "DAY",
-                "quantity": str(qty)
+            "variety": "NORMAL",
+            "tradingsymbol": symbol,
+            "symboltoken": symboltoken,
+            "transactiontype": "SELL",
+            "exchange": "NFO",
+            "ordertype": "MARKET",
+            "producttype": "CARRYFORWARD",
+            "duration": "DAY",
+            "price": "0",
+            "squareoff": "0",
+            "stoploss": "0",
+            "quantity": str(qty)
             }
             order = smartApi.placeOrder(orderparams)
             if order:

@@ -11,9 +11,19 @@ def login():
         if data['status']:
             public_ip = "54.253.200.200"
             
-            smartApi.clientLocalIp = "127.0.0.1"
+            public_ip = "3.107.214.228"
+            import socket
+            import uuid
+            import re
+            
+            local_ip = socket.gethostbyname(socket.gethostname())
+            mac = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
+            
+            smartApi.clientLocalIp = local_ip
+            smartApi.clientLocalIP = local_ip
             smartApi.clientPublicIp = public_ip
-            smartApi.clientMacAddress = "00:00:00:00:00:00"
+            smartApi.clientPublicIP = public_ip
+            smartApi.clientMacAddress = mac
             
             logging.info(f"[DEBUG] Using Public IP: {public_ip}")
             
